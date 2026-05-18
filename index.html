@@ -3,48 +3,40 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>360° Video Experience</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>360° VR Experience</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/1.4.0/aframe.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; overflow: hidden; width: 100vw; height: 100vh; font-family: Arial, sans-serif; color: white; }
 
 ```
-body {
-  background: #080c14;
-  font-family: Arial, sans-serif;
-  color: white;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-}
-
-/* ── START OVERLAY ── */
+/* START OVERLAY */
 #start-overlay {
   position: fixed; inset: 0; z-index: 9999;
   background: #080c14;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  cursor: pointer;
+  cursor: pointer; text-align: center; padding: 2rem;
 }
 #start-overlay.hidden { display: none; }
 .tap-circle {
   width: 90px; height: 90px; border-radius: 50%;
   background: #00d4ff;
   display: flex; align-items: center; justify-content: center;
-  margin-bottom: 1rem;
-  box-shadow: 0 0 40px rgba(0,212,255,0.5);
+  margin-bottom: 1.2rem;
+  box-shadow: 0 0 50px rgba(0,212,255,0.5);
 }
 .tap-circle svg { width: 38px; height: 38px; fill: #000; margin-left: 7px; }
-#start-overlay h2 { font-size: 1.4rem; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
-#start-overlay p { color: rgba(255,255,255,0.45); font-size: 0.82rem; }
+#start-overlay h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+#start-overlay p { color: rgba(255,255,255,0.45); font-size: 0.82rem; line-height: 1.6; }
 
-/* ── HEADER ── */
+/* HEADER */
 #header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 500;
   padding: 0.9rem 1.5rem;
   background: linear-gradient(to bottom, rgba(8,12,20,0.97) 60%, transparent);
-  display: flex; align-items: center; gap: 0.8rem;
+  display: none; align-items: center; gap: 0.8rem;
 }
 .badge {
   background: #00d4ff; color: #000;
@@ -54,54 +46,31 @@ body {
 }
 #header h1 { font-size: 1.1rem; letter-spacing: 0.08em; text-transform: uppercase; }
 
-/* ── PLAY/PAUSE BUTTON ── */
+/* PLAY/PAUSE */
 #bottom-bar {
   position: fixed; bottom: 1.8rem; left: 50%;
-  transform: translateX(-50%); z-index: 500;
+  transform: translateX(-50%); z-index: 500; display: none;
 }
-#bottom-bar.hidden { display: none; }
 .btn-play {
-  padding: 0.5rem 1.3rem; border-radius: 8px;
+  padding: 0.5rem 1.4rem; border-radius: 8px;
   border: 1px solid rgba(255,255,255,0.25);
-  font-size: 0.8rem; font-weight: 600; cursor: pointer;
-  background: rgba(255,255,255,0.1); color: white;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  background: rgba(0,0,0,0.5); color: white;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
 }
 
-/* ── PORTRAIT: single A-Frame scene ── */
-#portrait-view {
-  position: fixed; inset: 0;
-  display: block;
-}
-#portrait-view a-scene {
-  width: 100% !important;
-  height: 100% !important;
-}
+/* PORTRAIT: normale scene */
+#portrait-view { position: fixed; inset: 0; display: none; }
+#portrait-view a-scene { width: 100% !important; height: 100% !important; }
 
-/* ── LANDSCAPE: two side-by-side scenes ── */
+/* LANDSCAPE: VR split met lensvervorming via canvas */
 #vr-view {
   position: fixed; inset: 0;
-  display: none;
-  flex-direction: row;
+  display: none; background: #000;
 }
-.eye {
-  flex: 1; height: 100%;
-  position: relative; overflow: hidden;
-}
-.eye a-scene {
-  position: absolute; inset: 0;
-  width: 100% !important;
-  height: 100% !important;
-}
-/* thin divider between eyes */
-#vr-divider {
-  position: fixed; top: 0; left: 50%;
-  width: 2px; height: 100vh;
-  background: #000; z-index: 400;
-  display: none;
-}
+#vr-canvas { width: 100vw; height: 100vh; display: block; }
 
+/* Verberg A-Frame VR knop */
 .a-enter-vr-button { display: none !important; }
 ```
 
@@ -109,14 +78,14 @@ body {
 </head>
 <body>
 
-  <!-- START OVERLAY -->
+  <!-- START -->
 
   <div id="start-overlay" onclick="startExperience()">
     <div class="tap-circle">
       <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
     </div>
-    <h2>360° Experience</h2>
-    <p>Tik om te starten &nbsp;·&nbsp; Draai voor VR</p>
+    <h2>360° VR Experience</h2>
+    <p>Tik om te starten<br/>Draai je telefoon voor VR modus</p>
   </div>
 
   <!-- HEADER -->
@@ -128,101 +97,97 @@ body {
 
   <!-- PLAY/PAUSE -->
 
-  <div id="bottom-bar" class="hidden">
+  <div id="bottom-bar">
     <button class="btn-play" id="playBtn" onclick="togglePlay()">⏸ Pauzeer</button>
   </div>
 
-  <!-- PORTRAIT VIEW -->
+  <!-- PORTRAIT: A-Frame met gyro -->
 
   <div id="portrait-view">
-    <a-scene vr-mode-ui="enabled:false" embedded>
+    <a-scene id="portrait-scene" vr-mode-ui="enabled:false" embedded>
       <a-assets>
-        <video id="vid-portrait"
-          src="Nog.mp4" loop muted
-          playsinline webkit-playsinline
-          crossorigin="anonymous">
-        </video>
+        <video id="vid-main" src="Nog.mp4" loop muted playsinline webkit-playsinline crossorigin="anonymous"></video>
       </a-assets>
-      <a-videosphere src="#vid-portrait" rotation="0 180 0"></a-videosphere>
-      <a-camera look-controls="enabled:true; touchEnabled:true"></a-camera>
+      <a-videosphere src="#vid-main" rotation="0 180 0"></a-videosphere>
+      <a-camera
+        look-controls="enabled:true; magicWindowTrackingEnabled:true; pointerLockEnabled:false"
+        wasd-controls="enabled:false">
+      </a-camera>
     </a-scene>
   </div>
 
-  <!-- VR DIVIDER -->
-
-  <div id="vr-divider"></div>
-
-  <!-- LANDSCAPE VR VIEW -->
+  <!-- VR CANVAS voor barrel distortion -->
 
   <div id="vr-view">
-    <div class="eye">
-      <a-scene vr-mode-ui="enabled:false" embedded>
-        <a-assets>
-          <video id="vid-left"
-            src="Nog.mp4" loop muted
-            playsinline webkit-playsinline
-            crossorigin="anonymous">
-          </video>
-        </a-assets>
-        <a-videosphere src="#vid-left" rotation="0 180 0"></a-videosphere>
-        <a-camera look-controls="enabled:true; touchEnabled:true"></a-camera>
-      </a-scene>
-    </div>
-    <div class="eye">
-      <a-scene vr-mode-ui="enabled:false" embedded>
-        <a-assets>
-          <video id="vid-right"
-            src="Nog.mp4" loop muted
-            playsinline webkit-playsinline
-            crossorigin="anonymous">
-          </video>
-        </a-assets>
-        <a-videosphere src="#vid-right" rotation="0 180 0"></a-videosphere>
-        <a-camera look-controls="enabled:true; touchEnabled:true"></a-camera>
-      </a-scene>
-    </div>
+    <canvas id="vr-canvas"></canvas>
   </div>
 
   <script>
-    const vPortrait  = document.getElementById('vid-portrait');
-    const vLeft      = document.getElementById('vid-left');
-    const vRight     = document.getElementById('vid-right');
-    const allVideos  = [vPortrait, vLeft, vRight];
-
-    const portraitView  = document.getElementById('portrait-view');
-    const vrView        = document.getElementById('vr-view');
-    const vrDivider     = document.getElementById('vr-divider');
-    const header        = document.getElementById('header');
-    const bottomBar     = document.getElementById('bottom-bar');
-    const playBtn       = document.getElementById('playBtn');
-    const startOverlay  = document.getElementById('start-overlay');
+    const vidMain   = document.getElementById('vid-main');
+    const portraitV = document.getElementById('portrait-view');
+    const vrView    = document.getElementById('vr-view');
+    const header    = document.getElementById('header');
+    const bottomBar = document.getElementById('bottom-bar');
+    const playBtn   = document.getElementById('playBtn');
+    const startOv   = document.getElementById('start-overlay');
+    const canvas    = document.getElementById('vr-canvas');
+    const ctx       = canvas.getContext('2d');
 
     let playing = false;
     let inVR    = false;
     let started = false;
+    let animFrame = null;
+
+    // Gyro voor VR modus
+    let alpha = 0, beta = 90, gamma = 0;
+    let yaw = 0, pitch = 0;
+
+    // Offscreen video renderer voor VR canvas
+    let offscreen = document.createElement('canvas');
+    let offCtx = offscreen.getContext('2d');
+
+    /* ── GYRO ── */
+    function requestGyro() {
+      if (typeof DeviceOrientationEvent !== 'undefined' &&
+          typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission()
+          .then(r => { if (r === 'granted') listenGyro(); })
+          .catch(console.error);
+      } else {
+        listenGyro();
+      }
+    }
+
+    function listenGyro() {
+      window.addEventListener('deviceorientation', e => {
+        alpha = e.alpha || 0;
+        beta  = e.beta  || 90;
+        gamma = e.gamma || 0;
+        // Convert to yaw/pitch for VR canvas panning
+        yaw   = ((alpha / 360) * Math.PI * 2);
+        pitch = ((beta - 90) / 180) * Math.PI;
+      });
+    }
 
     /* ── START ── */
     function startExperience() {
-      allVideos.forEach(v => { v.muted = true; v.play(); });
-      playing = true;
-      started = true;
-      startOverlay.classList.add('hidden');
-      updateBtn();
-      checkOrientation();
-    }
-
-    /* ── PLAY / PAUSE ── */
-    function togglePlay() {
-      if (playing) {
-        allVideos.forEach(v => v.pause());
-        playing = false;
-      } else {
-        allVideos.forEach(v => v.play());
+      vidMain.muted = true;
+      vidMain.play().then(() => {
         playing = true;
-      }
-      updateBtn();
+        started = true;
+        updateBtn();
+        startOv.classList.add('hidden');
+        requestGyro();
+        checkOrientation();
+      }).catch(e => console.log('play error:', e));
     }
 
+    /* ── PLAY/PAUSE ── */
+    function togglePlay() {
+      if (playing) { vidMain.pause(); playing = false; }
+      else         { vidMain.play();  playing = true;  }
+      updateBtn();
+    }
     function updateBtn() {
       playBtn.textContent = playing ? '⏸ Pauzeer' : '▶ Afspelen';
     }
@@ -230,7 +195,6 @@ body {
     /* ── ORIENTATION ── */
     function checkOrientation() {
       if (!started) return;
-      // use screen.orientation if available, else fall back to dimensions
       let landscape;
       if (screen.orientation) {
         landscape = screen.orientation.type.includes('landscape');
@@ -240,46 +204,121 @@ body {
       landscape ? showVR() : showPortrait();
     }
 
+    function showPortrait() {
+      if (!inVR && started) {
+        portraitV.style.display = 'block';
+        header.style.display    = 'flex';
+        bottomBar.style.display = 'block';
+        return;
+      }
+      if (!inVR) return;
+      inVR = false;
+      cancelAnimationFrame(animFrame);
+      vrView.style.display    = 'none';
+      portraitV.style.display = 'block';
+      header.style.display    = 'flex';
+      bottomBar.style.display = 'block';
+    }
+
     function showVR() {
       if (inVR) return;
       inVR = true;
-
-      // sync time
-      vLeft.currentTime  = vPortrait.currentTime;
-      vRight.currentTime = vPortrait.currentTime;
-      allVideos.forEach(v => { v.muted = true; v.play(); });
-
-      portraitView.style.display = 'none';
-      vrView.style.display       = 'flex';
-      vrDivider.style.display    = 'block';
-      header.style.display       = 'none';
-      bottomBar.classList.add('hidden');
+      portraitV.style.display = 'none';
+      header.style.display    = 'none';
+      bottomBar.style.display = 'none';
+      vrView.style.display    = 'block';
+      resizeCanvas();
+      renderVR();
     }
 
-    function showPortrait() {
-      if (!inVR) {
-        // First time in portrait after start
-        bottomBar.classList.remove('hidden');
-        return;
+    /* ── VR CANVAS RENDER met barrel distortion ── */
+    function resizeCanvas() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+      offscreen.width  = window.innerWidth;
+      offscreen.height = window.innerHeight;
+    }
+
+    function renderVR() {
+      if (!inVR) return;
+      animFrame = requestAnimationFrame(renderVR);
+
+      const W = canvas.width;
+      const H = canvas.height;
+      const halfW = W / 2;
+
+      // Draw video to offscreen
+      offCtx.drawImage(vidMain, 0, 0, offscreen.width, offscreen.height);
+
+      // Draw left and right eye with barrel distortion
+      drawEye(ctx, offCtx, 0,     0, halfW, H, -0.0);
+      drawEye(ctx, offCtx, halfW, 0, halfW, H, -0.0);
+
+      // Divider
+      ctx.fillStyle = '#000';
+      ctx.fillRect(halfW - 1, 0, 2, H);
+    }
+
+    function drawEye(ctx, src, x, y, w, h) {
+      // Sample the equirectangular video and apply circular barrel mask
+      const imageData = ctx.createImageData(w, h);
+      const srcCanvas = src.canvas;
+      const srcW = srcCanvas.width;
+      const srcH = srcCanvas.height;
+
+      // Get source pixels
+      const srcData = src.getImageData(0, 0, srcW, srcH);
+
+      const cx = w / 2;
+      const cy = h / 2;
+      const R  = Math.min(cx, cy) * 0.95;
+      const k1 = 0.22; // barrel distortion strength
+
+      for (let py = 0; py < h; py++) {
+        for (let px = 0; px < w; px++) {
+          const nx = (px - cx) / R;
+          const ny = (py - cy) / R;
+          const r2 = nx * nx + ny * ny;
+
+          if (r2 > 1) continue; // outside lens circle
+
+          // Barrel distortion correction
+          const r = Math.sqrt(r2);
+          const distort = 1 + k1 * r2;
+          const sx = nx / distort;
+          const sy = ny / distort;
+
+          // Convert to equirectangular UV
+          // Add gyro yaw offset
+          let u = (Math.atan2(sx, Math.sqrt(1 - sx*sx - sy*sy)) / Math.PI + yaw / (Math.PI * 2) + 0.5) % 1;
+          let v = (Math.asin(Math.max(-1, Math.min(1, sy))) / Math.PI + 0.5 + pitch / Math.PI);
+          v = Math.max(0, Math.min(1, v));
+          if (u < 0) u += 1;
+
+          const srcX = Math.floor(u * srcW);
+          const srcY = Math.floor(v * srcH);
+          const si = (srcY * srcW + srcX) * 4;
+          const di = (py * w + px) * 4;
+
+          imageData.data[di]     = srcData.data[si];
+          imageData.data[di + 1] = srcData.data[si + 1];
+          imageData.data[di + 2] = srcData.data[si + 2];
+          imageData.data[di + 3] = 255;
+        }
       }
-      inVR = false;
 
-      // sync time back
-      vPortrait.currentTime = vLeft.currentTime;
-      vPortrait.muted = true;
-      vPortrait.play();
-
-      portraitView.style.display = 'block';
-      vrView.style.display       = 'none';
-      vrDivider.style.display    = 'none';
-      header.style.display       = 'flex';
-      bottomBar.classList.remove('hidden');
+      ctx.putImageData(imageData, x, y);
     }
 
-    /* ── LISTENERS ── */
-    window.addEventListener('resize', () => setTimeout(checkOrientation, 250));
+    /* ── EVENTS ── */
+    window.addEventListener('resize', () => {
+      setTimeout(() => {
+        resizeCanvas();
+        checkOrientation();
+      }, 300);
+    });
     if (screen.orientation) {
-      screen.orientation.addEventListener('change', () => setTimeout(checkOrientation, 350));
+      screen.orientation.addEventListener('change', () => setTimeout(checkOrientation, 400));
     }
   </script>
 
